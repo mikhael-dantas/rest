@@ -1,95 +1,201 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+import { useState, useRef } from 'react';
 
-export default function Home() {
+const Index = () => {
+  const [items, setItems] = useState([]);
+  const [result, setResult] = useState('');
+  
+  const foodNameRef = useRef();
+  const costRef = useRef();
+  const sellPriceRef = useRef();
+
+  const calculatePercentage = () => {
+    const foodName = foodNameRef.current.value.trim();
+    const cost = parseFloat(costRef.current.value);
+    const sellPrice = parseFloat(sellPriceRef.current.value);
+    const imageURL = "https://i2.wp.com/nypost.com/wp-content/uploads/sites/2/2020/03/sushi-94.jpg?quality=90&strip=all&ssl=1";
+
+    if (foodName === '') {
+      alert('Please enter the name of the food.');
+      return;
+    }
+
+    if (isNaN(cost) || isNaN(sellPrice)) {
+      alert('Please enter valid numbers for the cost and selling price.');
+      return;
+    }
+
+    const percentage = (cost / sellPrice * 100).toFixed(2);
+
+    const item = {
+      foodName,
+      imageURL,
+      cost: cost.toFixed(2),
+      sellPrice: sellPrice.toFixed(2),
+      percentage,
+    };
+    
+    setItems(prevItems => [...prevItems, item]);
+    setResult(`Última Porcentagem: ${percentage}%`);
+    
+    foodNameRef.current.value = '';
+    costRef.current.value = '';
+    sellPriceRef.current.value = '';
+  };
+
+  const deleteItem = (index) => {
+    setItems(prevItems => prevItems.filter((_, i) => i !== index));
+  };
+
+  const exportToCSV = () => {
+    const csvContent = "data:text/csv;charset=utf-8,"
+      + items.map(item => Object.values(item).join(',')).join('\n');
+
+    const encodedURI = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedURI);
+    link.setAttribute('download', 'itens.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div>
+      <div className="card">
+        <img src="https://i2.wp.com/nypost.com/wp-content/uploads/sites/2/2020/03/sushi-94.jpg?quality=90&strip=all&ssl=1"
+          alt="Ícone" />
+        <div className="form">
+          <input type="text" ref={foodNameRef} placeholder="Nome do Alimento" />
+          <input type="number" ref={costRef} placeholder="Custo" />
+          <input type="number" ref={sellPriceRef} placeholder="Preço de Venda" />
+          <button type="button" onClick={calculatePercentage}>Adicionar</button>
         </div>
+        <div className="item-list">
+          <h3>Itens Adicionados:</h3>
+          <table className="item-table">
+            <thead>
+              <tr>
+                <th>Nome do Alimento</th>
+                <th>Imagem</th>
+                <th>Custo</th>
+                <th>Preço de Venda</th>
+                <th>Porcentagem</th>
+                <th>Excluir</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.foodName}</td>
+                  <td><img src={item.imageURL} alt="Imagem do Alimento" style={{width: '50px', height: 'auto'}} /></td>
+                  <td>R$ {item.cost}</td>
+                  <td>R$ {item.sellPrice}</td>
+                  <td>{item.percentage}%</td>
+                  <td><button className="delete-btn" onClick={() => deleteItem(index)}>Excluir</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="result">{result}</div>
+        <button className="export-btn" onClick={exportToCSV}>Exportar</button>
       </div>
+      <style jsx>{`
+        /* CSS Styles Here */
+        body {
+      background-color: #212121;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+    }
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+    /* Personalize os estilos do card e do formulário */
+    .card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px;
+      padding: 20px;
+      background-color: #333333;
+      border-radius: 10px;
+    }
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+    .card img {
+      width: 200px;
+      height: auto;
+      border-radius: 50%;
+    }
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
+    .form {
+      display: flex;
+      flex-direction: column;
+      margin-top: 20px;
+    }
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
+    .form input {
+      margin-bottom: 10px;
+      padding: 5px;
+      border-radius: 5px;
+    }
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
-}
+    .form button {
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #555555;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .item-list {
+      margin-top: 20px;
+    }
+
+    .item-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 10px;
+    }
+
+    .item-table th {
+      background-color: #555555;
+      color: #ffffff;
+      padding: 10px;
+      font-size: 18px;
+      text-align: left;
+      border-bottom: 1px solid #ffffff;
+    }
+
+    .item-table td {
+      padding: 10px;
+      font-size: 16px;
+      border-bottom: 1px solid #dddddd;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    .delete-btn {
+      background-color: #ff0000;
+      border: none;
+      color: #ffffff;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .export-btn {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #555555;
+      color: #ffffff;
+      cursor: pointer;
+    }
+      `}</style>
+    </div>
+  );
+};
+
+export default Index;
