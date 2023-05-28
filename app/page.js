@@ -1,6 +1,8 @@
+"use client"
 import { useState, useRef } from 'react';
-
+"use client"
 const Index = () => {
+  "use client"
   const [items, setItems] = useState([]);
   const [result, setResult] = useState('');
   
