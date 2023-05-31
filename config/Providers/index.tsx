@@ -3,6 +3,8 @@
 import React from 'react';
 
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+import { Provider } from 'react-redux';
+import store from '../redux/store';
 
 export const Providers: React.FC<
     React.PropsWithChildren
@@ -14,7 +16,9 @@ export const Providers: React.FC<
       });
     return (
     <ApolloProvider client={client}>
-        {children}
+        <Provider store={store}>
+            {children}
+        </Provider>
     </ApolloProvider>
     )
 };

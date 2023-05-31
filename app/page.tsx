@@ -1,6 +1,8 @@
 import React from 'react';
+import { Oi } from '../components/Test';
 
 const LandingPage = () => {
+  console.log()
   return (
     <div className="bg-gray-100 min-h-screen">
       <header className="py-6 px-4 sm:px-6 lg:px-8 bg-white shadow">
@@ -24,7 +26,7 @@ const LandingPage = () => {
           </button>
         </div>
       </div>
-      
+
       <main className="container mx-auto py-16 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-center space-y-12">
           <div className="max-w-md space-y-6 text-center">
@@ -63,3 +65,4 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
+
